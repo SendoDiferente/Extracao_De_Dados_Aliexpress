@@ -1,10 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Extracao_Produtos.Site
 {
@@ -40,6 +36,33 @@ namespace Extracao_Produtos.Site
             {
                 Console.WriteLine("Elemento Ok");
                 return false;
+            }
+        }
+        public string ExtrairDados(string Elemento, string Elemento1, string Elemento2, IWebDriver driver)
+        {
+            try
+            {
+                return driver.FindElement(By.XPath(Elemento)).Text;
+            }
+            catch
+            {
+                try
+                {
+                    return driver.FindElement(By.XPath(Elemento1)).Text;
+                }
+                catch
+                {
+                    try
+                    {
+                        return  driver.FindElement(By.XPath(Elemento2)).Text;
+                    }
+                    catch
+                    {
+                        
+                            return null;
+                        
+                    }
+                }
             }
         }
     }

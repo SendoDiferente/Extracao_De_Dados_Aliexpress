@@ -1,30 +1,138 @@
-﻿using OpenQA.Selenium;
+﻿using ClosedXML.Excel;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Extracao_Produtos.Site
 {
     public class Sites
     {
         public static ChromeDriver driver;
-        AguardarElemento aguardar = new AguardarElemento();
+        public static AguardarElemento aguardar = new AguardarElemento();
+        public static XLWorkbook planilha = new XLWorkbook(@$"C:\Users\Guilherme\Desktop\C#\EXTRACAO DE DADOS\GC Importados\Dados\PlanilhaAli.xlsx");
+        public static string Nome_do_Produto = null;
+        public static string Numero_de_Vendidos;
+        public static string Valor;
+        public static string Nota_Produto;
+        public static string Frete;
+        public static string Imagem;
+        public static string Link;
+        public static string Area;
+
         public void Aliexpress()
+        {
+            IniciarChrome();
+            Extracao_De_Dados();
+        }
+
+        public static void InserirDados(int valor)
+        {
+            var tabela = planilha.Worksheet(1);
+            int final = tabela.LastRowUsed().RowNumber();
+            bool Existente = false;
+            for (int cont = 1; cont <= final; cont++)
+            {
+                string NomeDoProduto1 = tabela.Cell(valor, 1).GetString();
+                string Valor_Produto = tabela.Cell(valor, 3).GetString();
+                string Valor_Produto1 = tabela.Cell(valor, 7).GetString();
+                if (Nome_do_Produto == NomeDoProduto1)
+                {
+                    if (Valor_Produto == null)
+                    {
+                        tabela.Cell(valor, 2).SetValue(Numero_de_Vendidos);
+                        tabela.Cell(valor, 3).SetValue(Valor);
+                        tabela.Cell(valor, 4).SetValue(Nota_Produto);
+                        tabela.Cell(valor, 6).SetValue(Imagem);
+                        tabela.Cell(valor, 5).SetValue(Frete);
+                    }
+                    else if (Valor_Produto1 == null)
+                    {
+                        tabela.Cell(valor, 8).SetValue(Numero_de_Vendidos);
+                        tabela.Cell(valor, 7).SetValue(Valor);
+                        tabela.Cell(valor, 9).SetValue(Nota_Produto);
+                    }
+                    else
+                    {
+                        tabela.Cell(valor, 11).SetValue(Numero_de_Vendidos);
+                        tabela.Cell(valor, 10).SetValue(Valor);
+                        tabela.Cell(valor, 12).SetValue(Nota_Produto);
+                    }
+                    Existente = true;
+                }
+            }
+            if (Existente == false)
+            {
+                tabela.Cell(final + 1, 1).SetValue(Nome_do_Produto);
+                tabela.Cell(final + 1, 2).SetValue(Numero_de_Vendidos);
+                tabela.Cell(final + 1, 3).SetValue(Valor);
+                tabela.Cell(final + 1, 4).SetValue(Nota_Produto);
+                tabela.Cell(final + 1, 6).SetValue(Imagem);
+                tabela.Cell(final + 1, 5).SetValue(Frete);
+                tabela.Cell(final + 1, 13).SetValue(Link);
+                tabela.Cell(final + 1, 14).SetValue(Area);
+            }
+        }
+
+        public static void IniciarChrome()
         {
             driver = new ChromeDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl("https://pt.aliexpress.com/");
             aguardar.AguardarElementos("/html/body/div[3]/div[5]/div[1]/div/div/div[2]/div/div/div[2]/dl[4]/dt/span/a[2]", driver, 4);
-            IWebElement ContagemdeDivs = driver.FindElement(By.XPath("/html/body/div[3]/div/div/div[2]/div[2]/div/div[2]"));
-            IList<IWebElement> contador = driver.FindElements(By.XPath("div"));
-            int i = 0;
-            foreach(IWebElement cont in contador)
+            aguardar.AguardarElementos("/html/body/div[2]/div[3]/div/div/div[5]/div[3]/span/a/span", driver, 3);
+        }
+
+        public static void Extracao_De_Dados()
+        {
+            Area = "Escritorio";
+            IList<IWebElement> contador = driver.FindElements(By.XPath("/html/body/div[3]/div/div/div[2]/div[2]/div/div[2]/div"));
+            int i = 1;
+            int j = 8;
+            int k = 3;
+            var rolagem_Para_Baixo = 1000;
+            foreach (IWebElement cont in contador)
             {
-                string Nome_do_Produto = driver.FindElement(By.XPath("/html/body/div[3]/div/div/div[2]/div[2]/div/div[2]/div[1]/div/div[1]/a/span")).Text;
-                string Numero_de_Vendidos =  driver.
+                Nome_do_Produto = aguardar.ExtrairDados($"/html/body/div[3]/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[1]/a/span",$"/html/body/div[3]/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[4]/div/a/span", $"/html/body/div[4]/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[1]/a/span", driver);
+                Numero_de_Vendidos = aguardar.ExtrairDados($"/html/body/div[3]/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[3]/a/span", $"//*[@id='root']/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[4]/a/span", $"/html/body/div[4]/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[3]/a/span", driver);
+                Valor = aguardar.ExtrairDados($"//*[@id='root']/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[2]/div", $"//*[@id='root']/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[3]/div", $"/html/body/div[4]/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[2]/div[2]", driver);
+                Nota_Produto = aguardar.ExtrairDados($"/html/body/div[3]/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[3]/div/a", $"//*[@id='root']/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[4]/div/a", $"/html/body/div[4]/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[3]/div/a", driver);
+                Frete = aguardar.ExtrairDados($"/html/body/div[3]/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[4]/span", $"//*[@id='root']/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[5]/span[1]", $"/html/body/div[4]/div/div/div[2]/div[2]/div/div[2]/div[{i}]/div/div[4]/span", driver);
+                try
+                {
+                    Imagem = driver.FindElement(By.XPath($"//*[@id='root']/div/div/div[2]/div[2]/div/div[2]/div[{i}]/a/img")).GetAttribute("src");
+                }
+                catch
+                {
+
+                }
+                try
+                {
+                    Link = driver.FindElement(By.XPath($"//*[@id='root']/div/div/div[2]/div[2]/div/div[2]/div[{i}]/a")).GetAttribute("href");
+                }
+                catch
+                {
+
+                }
+                InserirDados(i);
+                if (i == 5)
+                {
+                        k = 4;
+                }
+                if (j == i)
+                {
+                    IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                    js.ExecuteScript($"window.scrollBy(0,{rolagem_Para_Baixo})", "");
+                    j += 8;
+                    rolagem_Para_Baixo += 750;
+                    planilha.Save();
+                }
+                Nome_do_Produto = null;
+                Numero_de_Vendidos = null;
+                Valor = null;
+                Nota_Produto = null;
+                Frete = null;
+                Imagem = null;
+                i++;
             }
         }
     }
