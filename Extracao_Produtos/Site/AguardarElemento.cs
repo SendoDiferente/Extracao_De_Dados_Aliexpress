@@ -58,9 +58,9 @@ namespace Extracao_Produtos.Site
                     }
                     catch
                     {
-                        
+
                             return null;
-                        
+
                     }
                 }
             }
