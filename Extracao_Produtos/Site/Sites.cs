@@ -39,7 +39,7 @@ namespace Extracao_Produtos.Site
         {
             var tabela = planilha.Worksheet(1);
             int final = tabela.LastRowUsed().RowNumber();
-            for (int cont = 3; cont <= final; cont++)
+            for (int cont = 3   ; cont <= final; cont++)
             {
                 string site = tabela.Cell(cont, 20).GetString();
                 driver.Navigate().GoToUrl(site);
@@ -169,7 +169,7 @@ namespace Extracao_Produtos.Site
                 {
                         k = 4;
                 }
-                if (j == i)
+                    if (j == i)
                 {
                     IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
                     js.ExecuteScript($"window.scrollBy(0,{rolagem_Para_Baixo})", "");
